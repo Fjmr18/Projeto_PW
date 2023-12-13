@@ -1,9 +1,5 @@
 class Restaurant {
-    /**
-     * Constructor for the Restaurant class.
-     */
     constructor() {
-        /** @private */
         this.tables = [];
         for (let i = 0; i < 20; i++) {
             this.tables.push(new Table());
@@ -11,12 +7,10 @@ class Restaurant {
 
     }
 
-    /**
-     * Generates buttons for the tables and adds event listeners to handle click events.
-     */
+    // Generates buttons for the tables and sets up click event listeners
     generateTableButtons() {
         const tableContainer = document.getElementById("table-Of-Tables");
-        tableContainer.innerHTML = ""; // Clear existing buttons
+        tableContainer.innerHTML = "";
 
         for (let i = 0; i < 20; i++) {
             const tableButton = document.createElement("button");
@@ -30,86 +24,81 @@ class Restaurant {
                                         font-size: 16px;
                                         cursor: pointer;`;
 
+            // Handles click events for table buttons
             tableButton.addEventListener("click", () => this.handleTableButtonClick(i));
             tableContainer.appendChild(tableButton);
-            
         }
     }
 
-    /**
-     * Handles the click event of a table button.
-     *
-     * @param {number} tableIndex - The index of the table button clicked.
-     */
-   handleTableButtonClick(tableIndex) {
-    const tableButtons = document.getElementsByClassName("tableButton");
-    const clickedButton = tableButtons[tableIndex];
+    // Handles the click event of a table button
+    handleTableButtonClick(tableIndex) {
+        // Updates button styles and displays table details
+        const tableButtons = document.getElementsByClassName("tableButton");
+        const clickedButton = tableButtons[tableIndex];
+        const currentState = this.tables[tableIndex].getState();
+    
+        // Verifica se o estado é "Closed" e adiciona ou remove a classe "selected"
+        if (currentState === "Closed") {
+            for (let i = 0; i < tableButtons.length; i++) {
+                tableButtons[i].classList.remove("selected");
+            }
+            console.log(clickedButton);
+            clickedButton.classList.add("selected");
+        }
 
-    // Resetar todos os botões de mesa para o estilo padrão
-    for (let i = 0; i < tableButtons.length; i++) {
-        tableButtons[i].style.backgroundColor = "";
-        tableButtons[i].style.color = "";
-    }
+        const tableDetailsDiv = document.getElementById("container-Details");
+        tableDetailsDiv.innerHTML = "";
 
-    // Destacar o botão de mesa clicado
-    clickedButton.style.backgroundColor = "lightblue";
+        const tableHeader = document.createElement("h2");
+        tableHeader.innerText = `Table ${tableIndex + 1}`;
+        tableDetailsDiv.appendChild(tableHeader);
 
-    // Criar TableDetailsDiv e exibir detalhes da mesa
-    const tableDetailsDiv = document.getElementById("container-Details");
-    tableDetailsDiv.innerHTML = ""; // Limpar conteúdo existente
-
-    const tableHeader = document.createElement("h2");
-    tableHeader.innerText = `Table ${tableIndex + 1}`;
-    tableDetailsDiv.appendChild(tableHeader);
-
-    const orderTable = document.createElement("table");
-    orderTable.innerHTML = `
+        const orderTable = document.createElement("table");
+        orderTable.innerHTML = `
         <tr>
             <th>Products</th>
             <th>Quantity</th>
             <th>Price</th>
         </tr>
     `;
-    tableDetailsDiv.appendChild(orderTable);
+        tableDetailsDiv.appendChild(orderTable);
 
-    const totalLabel = document.createElement("label");
-    totalLabel.id = "orderTotalValueLabel";
-    totalLabel.innerText = `Total Value: `;
-    tableDetailsDiv.appendChild(totalLabel);
-    
-    tableDetailsDiv.appendChild(document.createElement("br"));
+        const totalLabel = document.createElement("label");
+        totalLabel.id = "orderTotalValueLabel";
+        totalLabel.innerText = `Total Value: `;
+        tableDetailsDiv.appendChild(totalLabel);
 
-    const createButton = document.createElement("button");
-    createButton.innerText = "Create";
-    createButton.addEventListener("click", () => this.handleCreateButtonClick(tableIndex));
-    tableDetailsDiv.appendChild(createButton);
+        tableDetailsDiv.appendChild(document.createElement("br"));
 
-    const editButton = document.createElement("button");
-    editButton.innerText = "Edit";
-    editButton.addEventListener("click", () => this.handleEditButtonClick(tableIndex));
-    tableDetailsDiv.appendChild(editButton);
+        // Reset the divs Create, Edit e Delete content so the user dont get confused.
+        const tableDetailsDivExtra = document.getElementById("container-DetailsExtra");
+        tableDetailsDivExtra.innerHTML = "";
 
-    const deleteButton = document.createElement("button");
-    deleteButton.innerText = "Delete";
-    deleteButton.addEventListener("click", () => this.handleDeleteButtonClick(tableIndex));
-    tableDetailsDiv.appendChild(deleteButton);
+        const createButton = document.createElement("button");
+        createButton.innerText = "Create";
+        createButton.addEventListener("click", () => this.handleCreateButtonClick(tableIndex));
+        tableDetailsDiv.appendChild(createButton);
 
-    const closeButton = document.createElement("button");
-    closeButton.innerText = "Close";
-    closeButton.addEventListener("click", () => this.handleCloseButtonClick(tableIndex));
-    tableDetailsDiv.appendChild(closeButton);
+        const editButton = document.createElement("button");
+        editButton.innerText = "Edit";
+        editButton.addEventListener("click", () => this.handleEditButtonClick(tableIndex));
+        tableDetailsDiv.appendChild(editButton);
 
-    // Atualizar a tabela de detalhes
-    updateDetailTable(tableIndex);
-}
+        const deleteButton = document.createElement("button");
+        deleteButton.innerText = "Delete";
+        deleteButton.addEventListener("click", () => this.handleDeleteButtonClick(tableIndex));
+        tableDetailsDiv.appendChild(deleteButton);
 
+        const closeButton = document.createElement("button");
+        closeButton.innerText = "Close";
+        closeButton.addEventListener("click", () => this.handleCloseButtonClick(tableIndex));
+        tableDetailsDiv.appendChild(closeButton);
 
-    /**
-     * Handles the click event of the Create button.
-     *
-     * @param {number} tableIndex - The index of the table associated with the Create button.
-     */
+        this.updateDetailTable(tableIndex);
+    }
+    //  Handles the click event of the Create button for a table
     handleCreateButtonClick(tableIndex) {
+        // Creates form elements for product selection and quantity input
         const createDiv = document.createElement("div");
         createDiv.innerHTML = `
         <form>
@@ -117,12 +106,11 @@ class Restaurant {
             <select id="productSelect"></select>
             <label for="quantityInput">Quantity:</label>
             <input type="number" id="quantityInput" name="quantity" required>
-            <button type="button" onclick="saveProduct(${tableIndex})">Save</button>
+            <button type="button" onclick="restaurant.saveProduct(${tableIndex})">Save</button>
         </form>
     `;
 
         const productSelect = createDiv.querySelector("#productSelect");
-        // Populate product options from the Products class
         for (const product of Products.getAllProducts()) {
             const option = document.createElement("option");
             option.value = product.name;
@@ -133,19 +121,15 @@ class Restaurant {
         const tableDetailsDiv = document.getElementById("container-DetailsExtra");
         tableDetailsDiv.innerHTML = "";
         tableDetailsDiv.appendChild(createDiv);
-        updateDetailTable(tableIndex);
+        this.updateDetailTable(tableIndex);
     }
+    // Handles the click event of the Edit button for a table
+    handleEditButtonClick(tableIndex) {
+        // Displays an edit form for the table's order
+        const order = this.tables[tableIndex].getOrder();
 
-/**
- * Handles the click event of the Edit button.
- *
- * @param {number} tableIndex - The index of the table associated with the Edit button.
- */
-handleEditButtonClick(tableIndex) {
-    const order = this.tables[tableIndex].order;
-
-    const editDiv = document.createElement("div");
-    editDiv.innerHTML = `
+        const editDiv = document.createElement("div");
+        editDiv.innerHTML = `
         <h3>Edit Order</h3>
         <table>
             <tr>
@@ -158,129 +142,191 @@ handleEditButtonClick(tableIndex) {
         <button id="clearChangesBtn">Clear</button>
     `;
 
-    const orderTable = editDiv.querySelector("table");
-    for (let i = 0; i < order.products.length; i++) {
-        const product = order.products[i];
-        const row = document.createElement("tr");
-        row.innerHTML = `
+        const orderTable = editDiv.querySelector("table");
+        for (let i = 0; i < order.products.length; i++) {
+            const product = order.products[i];
+            const row = document.createElement("tr");
+            row.innerHTML = `
             <td>${product.product.name}</td>
             <td><input type="number" value="${product.quantity}" min="0" data-product-index="${i}"></td>
             <td>$<span class="priceSpan">${product.product.price * product.quantity}</span></td>
         `;
-        orderTable.appendChild(row);
-    }
+            orderTable.appendChild(row);
+        }
 
-    const tableDetailsDiv = document.getElementById("container-DetailsExtra");
-    tableDetailsDiv.innerHTML = "";
-    tableDetailsDiv.appendChild(editDiv);
+        const tableDetailsDiv = document.getElementById("container-DetailsExtra");
+        tableDetailsDiv.innerHTML = "";
+        tableDetailsDiv.appendChild(editDiv);
 
-    const saveChangesBtn = document.getElementById("saveChangesBtn");
-    saveChangesBtn.addEventListener("click", () => this.handleSaveChanges(tableIndex));
+        const saveChangesBtn = document.getElementById("saveChangesBtn");
+        saveChangesBtn.addEventListener("click", () => this.handleSaveChanges(tableIndex));
 
-    const clearChangesBtn = document.getElementById("clearChangesBtn");
-    clearChangesBtn.addEventListener("click", () => this.handleClearChanges(tableIndex));
+        const clearChangesBtn = document.getElementById("clearChangesBtn");
+        clearChangesBtn.addEventListener("click", () => this.handleClearChanges(tableIndex));
 
-    tableDetailsDiv.addEventListener("input", (event) => {
-        if (event.target.tagName === "INPUT" && event.target.dataset.productIndex !== undefined) {
-            const productIndex = parseInt(event.target.dataset.productIndex);
-            const newQuantity = parseInt(event.target.value);
-            if (!isNaN(newQuantity) && newQuantity >= 0) {
-                const priceSpan = event.target.parentElement.nextElementSibling.querySelector(".priceSpan");
-                priceSpan.textContent = this.tables[tableIndex].order.products[productIndex].product.price * newQuantity;
+        tableDetailsDiv.addEventListener("input", (event) => {
+            if (event.target.tagName === "INPUT" && event.target.dataset.productIndex !== undefined) {
+                const productIndex = parseInt(event.target.dataset.productIndex);
+                const newQuantity = parseInt(event.target.value);
+                if (!isNaN(newQuantity) && newQuantity >= 0) {
+                    const priceSpan = event.target.parentElement.nextElementSibling.querySelector(".priceSpan");
+                    priceSpan.textContent = this.tables[tableIndex].order.products[productIndex].product.price * newQuantity;
+                }
             }
-        }
-    });
-}
-
-/**
- * Handles the click event of the Save button to save the changes made to quantities.
- *
- * @param {number} tableIndex - The index of the table associated with the Save button.
- */
-handleSaveChanges(tableIndex) {
-    const tableDetailsDiv = document.getElementById("container-DetailsExtra");
-    const inputs = tableDetailsDiv.querySelectorAll("input");
-
-    inputs.forEach((input, productIndex) => {
-        const parsedQuantity = parseInt(input.value);
-        if (!isNaN(parsedQuantity) && parsedQuantity >= 0) {
-            this.tables[tableIndex].order.products[productIndex].quantity = parsedQuantity;
-        }
-    });
-
-    updateDetailTable(tableIndex);
-}
-
-/**
- * Handles the click event of the Clear button to reset quantity inputs to their original values.
- *
- * @param {number} tableIndex - The index of the table associated with the Clear button.
- */
-handleClearChanges(tableIndex) {
-    const tableDetailsDiv = document.getElementById("container-DetailsExtra");
-    const inputs = tableDetailsDiv.querySelectorAll("input");
-
-    const order = this.tables[tableIndex].order;
-    for (let i = 0; i < order.products.length; i++) {
-        inputs[i].value = order.products[i].quantity;
+        });
     }
-}
 
-    /**
-     * Handles the click event of the Delete button.
-     *
-     * @param {number} tableIndex - The index of the table associated with the Delete button.
-     */
-    handleDeleteButtonClick(tableIndex) {
+    // Handles the click event of the Save button to save quantity changes
+    handleSaveChanges(tableIndex) {
+        // Saves changes made to quantities and updates the table details
+        const tableDetailsDiv = document.getElementById("container-DetailsExtra");
+        const inputs = tableDetailsDiv.querySelectorAll("input");
+
+        inputs.forEach((input, productIndex) => {
+            const parsedQuantity = parseInt(input.value);
+            if (!isNaN(parsedQuantity) && parsedQuantity >= 0) {
+                this.tables[tableIndex].order.products[productIndex].quantity = parsedQuantity;
+            }
+        });
+
+        this.updateDetailTable(tableIndex);
+    }
+
+    // Handles the click event of the Clear button to reset quantity inputs
+    handleClearChanges(tableIndex) {
+        // Resets quantity inputs to their original values and updates the input field
+        const tableDetailsDiv = document.getElementById("container-DetailsExtra");
+        const inputs = tableDetailsDiv.querySelectorAll("input");
+
         const order = this.tables[tableIndex].order;
+        console.log(order);
+        for (let i = 0; i < order.products.length; i++) {
+            inputs[i].value = order.products[i].quantity;
+        }
+    }
+
+    // Handles the click event of the Delete button for a table
+    handleDeleteButtonClick(tableIndex) {
+        // Displays a delete form for products in the table's order and updates the table details
+        const order = this.tables[tableIndex].getOrder(); // Utilizando o método getOrder
 
         const deleteDiv = document.createElement("div");
         deleteDiv.innerHTML = `
-            <h3>Delete Product</h3>
-            <select id="deleteProductSelect"></select>
-            <button type="button" onclick="confirmDeleteProduct(${tableIndex})">Delete</button>
-        `;
+        <h3>Delete Product</h3>
+        <select id="deleteProductSelect"></select>
+        <button type="button" onclick="restaurant.removeProduct(${tableIndex}, this.previousElementSibling.value)">Remove</button>`;
 
         const deleteProductSelect = deleteDiv.querySelector("#deleteProductSelect");
-        // Populate product options from the order
+
         for (const product of order.products) {
             const option = document.createElement("option");
-            option.value = product.product.name; // Ajuste aqui para acessar corretamente o nome do produto
-            option.innerText = product.product.name; // Ajuste aqui para acessar corretamente o nome do produto
+            option.value = product.product.name;
+            option.innerText = product.product.name;
             deleteProductSelect.appendChild(option);
         }
 
         const tableDetailsDiv = document.getElementById("container-DetailsExtra");
         tableDetailsDiv.innerHTML = "";
         tableDetailsDiv.appendChild(deleteDiv);
-        updateDetailTable(tableIndex);
+        tableDetailsDiv.appendChild(deleteDiv);
+        this.updateDetailTable(tableIndex);
     }
 
-    /**
-     * Handles the click event of the Close button.
-     *
-     * @param {number} tableIndex - The index of the table associated with the Close button.
-     */
     handleCloseButtonClick(tableIndex) {
         const tableButton = document.getElementsByClassName("tableButton")[tableIndex];
-        tableButton.style.backgroundColor = "";
-        tableButton.style.color = ""; // Restaura a cor do texto para o padrão
-    
+        const currentState = this.tables[tableIndex].getState();
+
         const tableDetailsDiv = document.getElementById("container-DetailsExtra");
-        tableDetailsDiv.innerHTML = "";
-    
-        // Clear the order associated with the table
-        this.tables[tableIndex].order = new Order();
-        updateDetailTable(tableIndex);
+
+        if (tableDetailsDiv) {
+            tableDetailsDiv.innerHTML = "";
+            tableButton.style.color = "";
+
+            // Verifica se o estado da mesa é "Open" antes de limpar os detalhes
+            if (currentState === "Open") {
+                tableButton.style.backgroundColor = "";
+            }
+
+            // Limpa o pedido associado à mesa utilizando o método clearOrder
+            this.tables[tableIndex].clearOrder();
+            this.updateDetailTable(tableIndex);
+        } else {
+            throw new Error(alert("Element with ID 'container-Details' not found."));
+        }
+    }
+
+    // Método para atualizar a tabela de detalhes na UI
+    updateDetailTable(tableIndex) {
+        const order = this.tables[tableIndex].order;
+        const orderTable = document.querySelector("#container-Details table");
+        orderTable.innerHTML = `<tr><th>Products</th><th>Quantity</th><th>Price</th></tr>`;
+        let totalValue = order.calculateTotalValue();
+
+        for (const product of order.products) {
+            const row = document.createElement("tr");
+            row.innerHTML = `<td>${product.product.name}</td><td>${product.quantity}</td><td>$${product.product.price * product.quantity}</td>`;
+            orderTable.appendChild(row);
+        }
+
+        const totalValueLabel = document.getElementById("orderTotalValueLabel");
+        totalValueLabel.innerText = `Total Value: $${totalValue}`;
+    }
+
+    // Método para salvar o produto selecionado para o pedido associado à mesa
+    saveProduct(tableIndex) {
+        const productSelect = document.getElementById("productSelect");
+        const selectedProductName = productSelect.value;
+
+        const quantityInput = document.getElementById("quantityInput");
+        const selectedQuantity = parseInt(quantityInput.value);
+
+        if (selectedQuantity > 0) {
+            const selectedProduct = Products.getAllProducts().find(product => product.name === selectedProductName);
+            this.tables[tableIndex].order.addProduct(selectedProduct, selectedQuantity);
+
+            // Atualiza o estado da mesa para "Open"
+            this.tables[tableIndex].setState("Open");
+
+            const tableButton = document.getElementsByClassName("tableButton")[tableIndex];
+            tableButton.style.backgroundColor = "darkblue";
+            tableButton.style.color = "yellow";
+
+            this.updateDetailTable(tableIndex);
+        } else {
+            throw new Error(alert("A quantidade deve ser um número positivo."));
+        }
+    }
+
+    // Método para remover um produto do pedido associado à mesa
+    removeProduct(tableIndex, productIndex) {
+        this.tables[tableIndex].order.deleteProduct(productIndex);
+        this.updateDetailTable(tableIndex);
+        console.log(this.tables[tableIndex].order.length);
+        if (this.tables[tableIndex].order.length === void 0) {
+            document.getElementsByClassName("tableButton")[tableIndex].style.color = "";
+        }
     }
 }
 
 class Table {
-    /**
-     * Constructor for the Table class.
-     */
     constructor() {
-        /** @private */
+        this.order = new Order();
+        this.state = "closed";
+    }
+
+    getOrder() {
+        return this.order;
+    }
+
+    getState() {
+        return this.state;
+    }
+
+    setState(state) {
+        this.state = state;
+    }
+
+    clearOrder() {
         this.order = new Order();
     }
 }
@@ -290,11 +336,13 @@ class Order {
     }
 
     addProduct(product, quantity) {
-        const existingProduct = this.products.find(item => item.product.name === product.name);
-        
-        if (existingProduct) {
-            existingProduct.quantity += quantity;
+        const existingProductIndex = this.products.findIndex(item => item.product.name === product.name);
+
+        if (existingProductIndex !== -1) {
+            // If the product already exists in the table's order, update the quantity
+            this.products[existingProductIndex].quantity += quantity;
         } else {
+            // If the product doesn't exist, add it to the table's order
             this.products.push({ product, quantity });
         }
     }
@@ -306,139 +354,26 @@ class Order {
     calculateTotalValue() {
         let totalValue = 0;
         for (const item of this.products) {
-            totalValue += item.product.price * item.quantity; // Calcula o valor total considerando a quantidade
+            totalValue += item.product.price * item.quantity;
         }
         return totalValue;
     }
 }
-
-class Product {
-    /**
-     * Constructor for the Product class.
-     *
-     * @param {string} name - The name of the product.
-     * @param {number} price - The price of the product.
-     */
+class Products {
     constructor(name, price) {
-        /** @private */
         this.name = name;
-
-        /** @private */
         this.price = price;
     }
 
-    /**
-     * Getter method to retrieve the name of the product.
-     *
-     * @returns {string} The name of the product.
-     */
-    getName() {
-        return this.name;
-    }
-
-    /**
-     * Getter method to retrieve the price of the product.
-     *
-     * @returns {number} The price of the product.
-     */
-    getPrice() {
-        return this.price;
-    }
-}
-
-// Usage Examples for the classes
-
-// Create an instance of the Restaurant class
-const restaurant = new Restaurant();
-
-// Generate table buttons
-restaurant.generateTableButtons();
-
-// Create an instance of the Products class
-class Products {
     static getAllProducts() {
         return [
-            new Product("Pizza", 10),
-            new Product("Burger", 8),
-            new Product("Salad", 6),
-            new Product("Pasta", 12)
+            new Products("Pizza", 10),
+            new Products("Burger", 8),
+            new Products("Salad", 6),
+            new Products("Pasta", 12)
         ];
     }
 }
-
-// Function to save the selected product to the order associated with the table
-function saveProduct(tableIndex) {
-    const productSelect = document.getElementById("productSelect");
-    const selectedProductName = productSelect.value;
-
-    const quantityInput = document.getElementById("quantityInput");
-    const selectedQuantity = parseInt(quantityInput.value);
-
-    if (selectedQuantity > 0) {
-        const selectedProduct = Products.getAllProducts().find(product => product.name === selectedProductName);
-
-        restaurant.tables[tableIndex].order.addProduct(selectedProduct, selectedQuantity);
-
-        const tableButton = document.getElementsByClassName("tableButton")[tableIndex];
-        tableButton.style.backgroundColor = "darkblue";
-        tableButton.style.color = "yellow";
-
-        // Atualiza a tabela na DetailDiv após adicionar o produto
-        updateDetailTable(tableIndex);
-    } else {
-        throw new Error(alert("A quantidade deve ser um número positivo."));
-    }
-}
-
-// Função separada para atualizar a tabela na DetailDiv
-function updateDetailTable(tableIndex) {
-    const order = restaurant.tables[tableIndex].order;
-
-    const orderTable = document.querySelector("#container-Details table");
-    orderTable.innerHTML = `
-        <tr>
-            <th>Products</th>
-            <th>Quantity</th>
-            <th>Price</th>
-        </tr>
-    `;
-
-    let totalValue = order.calculateTotalValue(); // Calcula o valor total da ordem
-
-
-    for (const product of order.products) {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${product.product.name}</td>
-            <td>${product.quantity}</td>
-            <td>$${product.product.price * product.quantity}</td>
-        `;
-        orderTable.appendChild(row);
-    }
-
-    const totalValueLabel = document.getElementById("orderTotalValueLabel");
-    totalValueLabel.innerText = `Total Value: $${totalValue}`; // Atualiza a label com o valor total da ordem
-}
-
-
-// Function to delete the selected product from the order associated with the table
-function deleteProduct(tableIndex, productIndex) {
-    // Delete the product from the order associated with the table
-    restaurant.tables[tableIndex].order.deleteProduct(productIndex);
-    updateDetailTable(tableIndex);
-}
-
-// Function to confirm the deletion of the selected product from the order associated with the table
-function confirmDeleteProduct(tableIndex) {
-    const deleteProductSelect = document.getElementById("deleteProductSelect");
-    const selectedProductName = deleteProductSelect.value;
-
-    // Find the index of the selected product in the order
-    const productIndex = restaurant.tables[tableIndex].order.products.findIndex(product => product.name === selectedProductName);
-
-    // Delete the product from the order
-    restaurant.tables[tableIndex].order.deleteProduct(productIndex);
-
-    updateDetailTable(tableIndex);
-    
-}
+//Start of Restaurant and generation of the table buttons.
+const restaurant = new Restaurant();
+restaurant.generateTableButtons();

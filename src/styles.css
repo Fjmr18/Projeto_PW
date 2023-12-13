@@ -25,6 +25,10 @@ body, html{
     width: 100%;
     height: 100%;
 }
+.tableButton.selected {
+    background-color: lightblue;
+}
+
 
 .container-inner{
     display: flex;
